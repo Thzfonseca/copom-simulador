@@ -1,84 +1,74 @@
-function calcularSimulacao({ taxaCurta, prazoCurta, taxaLonga, prazoLonga, ipcaAnual, cdiAnual }) {
-  const anos = Object.keys(ipcaAnual).map(Number).sort();
+// simulador.js
 
-  // CALCULAR VALOR FUTURO DE CADA OPÇÃO
-  const vfCurta = calcularValorFuturoIPCA(ipcaAnual, taxaCurta, prazoCurta, anos[0]);
-  const vfLonga = calcularValorFuturoIPCA(ipcaAnual, taxaLonga, prazoLonga, anos[0]);
+function calcularSimulacao(config) {
+  const {
+    taxaCurta,
+    prazoCurta,
+    taxaLonga,
+    prazoLonga,
+    ipcaAnual,
+    cdiAnual
+  } = config;
 
-  // Reinvestimento em CDI após o vencimento do papel curto
-  const restante = prazoLonga - prazoCurta;
-  const inicioReinvestimento = anos[0] + prazoCurta;
-  const vfReinvestido = calcularReinvestimentoCDI(cdiAnual, vfCurta, restante, inicioReinvestimento);
+  const anos = [];
+  const curvaCurta = [];
+  const curvaLonga = [];
+  const curvaCurtaMediaAno = [];
+  const curvaLongaMediaAno = [];
 
-  const vfFinalCurta = vfReinvestido;
+  let acumuladoCurta = 0;
+  let acumuladoLonga = 0;
 
-  // RENTABILIDADE ACUMULADA
-  const retornoAcumuladoCurta = vfFinalCurta - 100;
-  const retornoAcumuladoLonga = vfLonga - 100;
+  const anoInicial = 2025;
+  const anoFinal = anoInicial + Math.round(prazoLonga);
 
-  // RENTABILIDADE MÉDIA AO ANO
-  const retornoAnualCurta = ((vfFinalCurta / 100) ** (1 / prazoLonga)) - 1;
-  const retornoAnualLonga = ((vfLonga / 100) ** (1 / prazoLonga)) - 1;
+  for (let ano = anoInicial; ano <= anoFinal; ano++) {
+    const i = ano - anoInicial;
+    anos.push(ano);
 
-  // CDI break-even: qual CDI médio no reinvestimento zeraria a diferença
-  const cdiBreakEven = calcularCDIBreakEven(vfCurta, vfLonga, restante);
+    const ipca = ipcaAnual[ano] / 100;
+    const cdi = cdiAnual[ano] / 100;
+
+    // Papel Curto: até o vencimento segue a taxa definida, depois CDI
+    let rendimentoCurta = 0;
+    if (i < prazoCurta) {
+      rendimentoCurta = (1 + ipca) * (1 + taxaCurta / 100) - 1;
+    } else {
+      rendimentoCurta = cdi;
+    }
+    acumuladoCurta = (1 + acumuladoCurta) * (1 + rendimentoCurta) - 1;
+    curvaCurta.push(acumuladoCurta * 100);
+
+    // Média anualizada até o ponto atual da curva curta
+    const mediaCurta = Math.pow(1 + acumuladoCurta, 1 / (i + 1)) - 1;
+    curvaCurtaMediaAno.push(mediaCurta * 100);
+
+    // Papel Longo: segue até o vencimento
+    if (i < prazoLonga) {
+      const rendimentoLonga = (1 + ipca) * (1 + taxaLonga / 100) - 1;
+      acumuladoLonga = (1 + acumuladoLonga) * (1 + rendimentoLonga) - 1;
+    }
+    curvaLonga.push(acumuladoLonga * 100);
+    const mediaLonga = Math.pow(1 + acumuladoLonga, 1 / (i + 1)) - 1;
+    curvaLongaMediaAno.push(mediaLonga * 100);
+  }
+
+  // CDI break-even: quanto precisa render após prazoCurta para empatar com o longo
+  const retornoFinalCurta = curvaCurta[prazoCurta - 1] / 100;
+  const anosReinv = prazoLonga - prazoCurta;
+  const fatorReinv = (1 + acumuladoLonga) / (1 + retornoFinalCurta);
+  const cdiBreakEven = Math.pow(fatorReinv, 1 / anosReinv) - 1;
 
   return {
-    retornoAcumuladoCurta,
-    retornoAcumuladoLonga,
-    retornoAnualCurta,
-    retornoAnualLonga,
-    cdiBreakEven,
-    curvaCurta: gerarCurvaRentabMedia(ipcaAnual, taxaCurta, prazoCurta, cdiAnual, prazoLonga, anos[0]),
-    curvaLonga: gerarCurvaRentabMedia(ipcaAnual, taxaLonga, prazoLonga, null, prazoLonga, anos[0]),
+    anos,
+    curvaCurta,
+    curvaLonga,
+    curvaCurtaMediaAno,
+    curvaLongaMediaAno,
+    retornoAcumuladoCurta: curvaCurta[curvaCurta.length - 1],
+    retornoAcumuladoLonga: curvaLonga[curvaLonga.length - 1],
+    retornoAnualCurta: curvaCurtaMediaAno[curvaCurtaMediaAno.length - 1],
+    retornoAnualLonga: curvaLongaMediaAno[curvaLongaMediaAno.length - 1],
+    cdiBreakEven: cdiBreakEven * 100
   };
 }
-
-function calcularValorFuturoIPCA(ipcaAnual, taxaReal, prazo, anoInicial) {
-  let vf = 100;
-  for (let i = 0; i < prazo; i++) {
-    const ano = anoInicial + i;
-    const ipca = (ipcaAnual[ano] ?? ipcaAnual[anoInicial]) / 100;
-    const taxa = taxaReal / 100;
-    vf *= (1 + ipca) * (1 + taxa);
-  }
-  return vf;
-}
-
-function calcularReinvestimentoCDI(cdiAnual, valorInicial, prazo, anoInicial) {
-  let vf = valorInicial;
-  for (let i = 0; i < prazo; i++) {
-    const ano = anoInicial + i;
-    const cdi = (cdiAnual[ano] ?? cdiAnual[anoInicial]) / 100;
-    vf *= (1 + cdi);
-  }
-  return vf;
-}
-
-function calcularCDIBreakEven(vfCurta, vfLonga, anosReinv) {
-  if (anosReinv <= 0) return null;
-  const taxa = (vfLonga / vfCurta) ** (1 / anosReinv) - 1;
-  return taxa * 100;
-}
-
-function gerarCurvaRentabMedia(ipcaAnual, taxaReal, prazoReal, cdiAnual, prazoFinal, anoInicial) {
-  const curva = [];
-  let vf = 100;
-  for (let i = 0; i < prazoFinal; i++) {
-    const ano = anoInicial + i;
-    if (i < prazoReal) {
-      const ipca = (ipcaAnual[ano] ?? 4) / 100;
-      const taxa = taxaReal / 100;
-      vf *= (1 + ipca) * (1 + taxa);
-    } else if (cdiAnual) {
-      const cdi = (cdiAnual[ano] ?? 9) / 100;
-      vf *= (1 + cdi);
-    }
-    const rentabMedia = (vf / 100) ** (1 / (i + 1)) - 1;
-    curva.push({ ano, rentab: rentabMedia * 100 });
-  }
-  return curva;
-}
-
-// Exportável no futuro
-window.calcularSimulacao = calcularSimulacao;

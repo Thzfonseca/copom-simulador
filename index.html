@@ -1,21 +1,21 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/html-docx-js/dist/html-docx.min.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>COPOM - Simulador IPCA+</title>
 
-  <!-- FONTES -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Roboto+Mono&display=swap" rel="stylesheet">
-
-  <!-- ESTILO -->
+  <!-- FONTES E ESTILO -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css"/>
 
   <!-- CHART.JS E ANOTAÇÃO -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.1.0/dist/chartjs-plugin-annotation.min.js"></script>
+
+  <!-- EXPORTAÇÃO WORD -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html-docx-js/dist/html-docx.min.js"></script>
 </head>
 <body>
 
@@ -24,28 +24,49 @@
     <div class="header-title">COPOM</div>
   </header>
 
-  <!-- CONTAINER PRINCIPAL -->
   <main class="container">
 
-    <!-- TÍTULO DA PÁGINA -->
+    <!-- TÍTULO -->
     <section class="page-title">
       <h1>Simulador Estratégico de IPCA+</h1>
       <p class="subtext">Ferramenta de apoio à decisão para Advisors e investidores de alta renda.</p>
     </section>
 
-    <!-- PREMISSAS ECONÔMICAS -->
+    <!-- PREMISSAS -->
     <section id="premissas-section" class="card">
       <h2>Premissas Econômicas</h2>
-      <div id="tabela-premissas"></div>
+      <div id="tabela-premissas">
+        <table>
+          <thead>
+            <tr><th>Ano</th><th>IPCA (%)</th><th>CDI (%)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>2025</td><td><input id="ipca-2025" value="4.00"></td><td><input id="cdi-2025" value="9.00"></td></tr>
+            <tr><td>2026</td><td><input id="ipca-2026" value="3.75"></td><td><input id="cdi-2026" value="8.50"></td></tr>
+            <tr><td>2027</td><td><input id="ipca-2027" value="3.50"></td><td><input id="cdi-2027" value="8.00"></td></tr>
+            <tr><td>2028</td><td><input id="ipca-2028" value="3.25"></td><td><input id="cdi-2028" value="7.75"></td></tr>
+            <tr><td>2029</td><td><input id="ipca-2029" value="3.00"></td><td><input id="cdi-2029" value="7.50"></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- CAMPOS DE PAPÉIS -->
+      <h3 style="margin-top: 24px;">Configuração dos Papéis</h3>
+      <div style="display: flex; gap: 32px; flex-wrap: wrap; margin-bottom: 16px;">
+        <div>
+          <h4>Papel Curto</h4>
+          <label>Taxa (% a.a.): <input type="number" id="taxa-curta" value="5.0" step="0.01"/></label><br/>
+          <label>Prazo (anos): <input type="number" id="prazo-curta" value="3" step="0.5"/></label>
+        </div>
+        <div>
+          <h4>Papel Longo</h4>
+          <label>Taxa (% a.a.): <input type="number" id="taxa-longa" value="5.5" step="0.01"/></label><br/>
+          <label>Prazo (anos): <input type="number" id="prazo-longa" value="5" step="0.5"/></label>
+        </div>
+      </div>
     </section>
 
-    <!-- CENÁRIO MACRO -->
-    <section id="macro-variaveis-section" class="card">
-      <h2>Cenário Macroeconômico Atual</h2>
-      <div id="form-markov"></div>
-    </section>
-
-    <!-- BOTÃO DE SIMULAÇÃO -->
+    <!-- BOTÃO -->
     <section class="card">
       <button id="btn-simular">Rodar Simulação</button>
     </section>
@@ -63,12 +84,6 @@
       <canvas id="grafico-anualizado"></canvas>
     </section>
 
-    <!-- STRESS DE CENÁRIO -->
-    <section id="stress-section" class="card">
-      <h2>Stress de Cenário</h2>
-      <div id="sliders-stress"></div>
-    </section>
-
     <!-- NARRATIVA -->
     <section id="narrativa-section" class="card">
       <h2>Análise e Interpretação</h2>
@@ -77,10 +92,10 @@
 
     <!-- EXPORTAÇÃO -->
     <section id="exportacao-section" class="card export-panel">
-      <button id="btn-exportar">Exportar Análise</button>
+      <button id="btn-exportar">Exportar Análise (Word)</button>
     </section>
 
-    <!-- DEBUG LOG -->
+    <!-- LOG DE DEBUG -->
     <section id="debug-section" class="debug-log">
       <button onclick="toggleDebug()">Ver Log Técnico</button>
       <div id="relatorio-erros" style="display:none;"></div>
@@ -88,7 +103,7 @@
 
   </main>
 
-  <!-- JS PRINCIPAIS -->
+  <!-- SCRIPTS -->
   <script src="script.js"></script>
   <script src="simulador.js"></script>
   <script src="grafico.js"></script>

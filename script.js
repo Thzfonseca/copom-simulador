@@ -28,6 +28,7 @@ function gerarTabelaPremissas() {
 /* === FORMULÁRIO DE CENÁRIO MACROECONÔMICO === */
 function gerarFormularioMacro() {
   const div = document.getElementById("form-markov");
+  if (!div) return;
   div.innerHTML = `
     <label>IPCA atual (%): <input type="number" id="ipca-atual" value="4.2" step="0.01"/></label><br/>
     <label>CDI atual (%): <input type="number" id="cdi-atual" value="10.65" step="0.01"/></label><br/>
@@ -69,8 +70,6 @@ function interpretarCenario() {
   const ipca = parseFloat(document.getElementById("ipca-atual").value);
   const cdi = parseFloat(document.getElementById("cdi-atual").value);
   const juros = document.getElementById("tendencia-juros").value;
-  const atividade = document.getElementById("atividade").value;
-  const cambio = document.getElementById("cambio").value;
   const externo = document.getElementById("externo").value;
 
   let estadoAtual = "E2";
@@ -108,39 +107,6 @@ function interpretarCenario() {
   logar(`Cenário macroeconômico interpretado: ${estadoAtual}`);
 }
 
-/* === EXPORTAÇÃO DE RELATÓRIO === */
-function configurarBotaoExportar() {
-  document.getElementById("btn-exportar").addEventListener("click", () => {
-    alert("Exportação de relatório em construção.");
-    logar("Exportação acionada.");
-  });
-}
-
-/* === LOGGING E DEBUG === */
-function registrarErro(msg) {
-  console.error("[COPOM-ERRO]", msg);
-  window.__errosDebug = window.__errosDebug || [];
-  window.__errosDebug.push(msg);
-  const div = document.getElementById("relatorio-erros");
-  if (div) {
-    div.style.display = "block";
-    div.innerHTML += `<div>[!] ${msg}</div>`;
-    div.scrollTop = div.scrollHeight;
-  }
-}
-
-function logar(msg) {
-  console.log("[COPOM-LOG]", msg);
-}
-
-function toggleDebug() {
-  const log = document.getElementById("relatorio-erros");
-  if (log.style.display === "none") {
-    log.style.display = "block";
-  } else {
-    log.style.display = "none";
-  }
-}
 /* === BOTÃO DE SIMULAÇÃO === */
 document.getElementById("btn-simular").addEventListener("click", () => {
   try {
@@ -175,6 +141,8 @@ document.getElementById("btn-simular").addEventListener("click", () => {
     registrarErro("Erro ao rodar simulação: " + erro.message);
   }
 });
+
+/* === RESUMO VISUAL === */
 function atualizarResumo(simulacao) {
   const container = document.getElementById("resumo-cards");
   container.innerHTML = `
@@ -196,14 +164,14 @@ function atualizarResumo(simulacao) {
   `;
 }
 
+/* === NARRATIVA INTERPRETATIVA === */
 function gerarNarrativa(simulacao) {
   const div = document.getElementById("output-narrativo");
-
   let texto = "";
   const diff = simulacao.retornoAnualLonga - simulacao.retornoAnualCurta;
 
   if (diff > 0.15) {
-    texto += `<p>O papel <strong>longo</strong> oferece uma rentabilidade média ao ano superior ao papel curto, mesmo com reinvestimento em CDI.`;
+    texto += `<p>O papel <strong>longo</strong> oferece uma rentabilidade média ao ano superior ao papel curto, mesmo com reinvestimento em CDI.</p>`;
   } else if (diff < -0.15) {
     texto += `<p>O papel <strong>curto + CDI</strong> supera o papel longo em retorno anual, indicando melhor eficiência no ciclo atual.</p>`;
   } else {
@@ -213,15 +181,15 @@ function gerarNarrativa(simulacao) {
   texto += `<p>Para que o papel curto + CDI empate com o longo, o CDI médio após ${simulacao.curvaCurta.length - 3} anos precisa ser de pelo menos <strong>${simulacao.cdiBreakEven.toFixed(2)}% a.a.</strong></p>`;
   div.innerHTML = texto;
 }
+
+/* === EXPORTAÇÃO === */
 function configurarBotaoExportar() {
   document.getElementById("btn-exportar").addEventListener("click", async () => {
     try {
       const canvas1 = document.getElementById("grafico-acumulado");
       const canvas2 = document.getElementById("grafico-anualizado");
-
       const img1 = canvas1.toDataURL("image/png");
       const img2 = canvas2.toDataURL("image/png");
-
       const resumo = document.getElementById("resumo-cards").innerHTML;
       const narrativa = document.getElementById("output-narrativo").innerHTML;
 
@@ -240,40 +208,30 @@ function configurarBotaoExportar() {
       const html = `
         <h1 style="color:#234E70;">Relatório Estratégico COPOM</h1>
         <p><strong>Simulação gerada automaticamente por advisor.</strong></p>
-
         <h2>Premissas Econômicas</h2>
         <table border="1" cellpadding="4" cellspacing="0">
           <thead><tr><th>Ano</th><th>IPCA (%)</th><th>CDI (%)</th></tr></thead>
           <tbody>${premissas.join('')}</tbody>
         </table>
-
         <h2>Configuração dos Papéis</h2>
         <ul>
           <li><strong>Papel Curto:</strong> IPCA+${taxaCurta}% — ${prazoCurta} anos</li>
           <li><strong>Papel Longo:</strong> IPCA+${taxaLonga}% — ${prazoLonga} anos</li>
         </ul>
-
         <h2>Resumo Estratégico</h2>
         <div style="border-left:4px solid #C9A86B; padding-left:12px;">${resumo}</div>
-
         <h2>Gráficos</h2>
-        <img src="${img1}" alt="Rentabilidade acumulada"/>
-        <br/>
+        <img src="${img1}" alt="Rentabilidade acumulada"/><br/>
         <img src="${img2}" alt="Rentabilidade média ao ano"/>
-
         <h2>Análise e Interpretação</h2>
         <div style="background:#f4f4f4; padding:12px;">${narrativa}</div>
       `;
 
-      const converted = window.htmlDocx.asBlob(html, { orientation: 'portrait', margins: { top: 720 } });
+      const converted = window.htmlDocx.asBlob(html, { orientation: 'portrait' });
       saveAs(converted, `Relatorio-COPOM-${new Date().toISOString().split('T')[0]}.docx`);
-
       logar("Relatório exportado como DOCX.");
     } catch (erro) {
       registrarErro("Erro ao exportar relatório Word: " + erro.message);
     }
   });
 }
-
-
-
