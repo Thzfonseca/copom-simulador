@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>COPOM - Simulador IPCA+</title>
 
   <!-- FONTES E ESTILO -->
@@ -10,8 +10,8 @@
   <link rel="stylesheet" href="style.css"/>
 
   <!-- CHART.JS E ANOTAÇÃO -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.1.0/dist/chartjs-plugin-annotation.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.4.0/dist/chartjs-plugin-annotation.min.js"></script>
 
   <!-- EXPORTAÇÃO WORD -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
@@ -32,25 +32,11 @@
       <p class="subtext">Ferramenta de apoio à decisão para Advisors e investidores de alta renda.</p>
     </section>
 
-    <!-- PREMISSAS -->
+    <!-- PREMISSAS E PAPÉIS -->
     <section id="premissas-section" class="card">
       <h2>Premissas Econômicas</h2>
-      <div id="tabela-premissas">
-        <table>
-          <thead>
-            <tr><th>Ano</th><th>IPCA (%)</th><th>CDI (%)</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>2025</td><td><input id="ipca-2025" value="4.00"></td><td><input id="cdi-2025" value="9.00"></td></tr>
-            <tr><td>2026</td><td><input id="ipca-2026" value="3.75"></td><td><input id="cdi-2026" value="8.50"></td></tr>
-            <tr><td>2027</td><td><input id="ipca-2027" value="3.50"></td><td><input id="cdi-2027" value="8.00"></td></tr>
-            <tr><td>2028</td><td><input id="ipca-2028" value="3.25"></td><td><input id="cdi-2028" value="7.75"></td></tr>
-            <tr><td>2029</td><td><input id="ipca-2029" value="3.00"></td><td><input id="cdi-2029" value="7.50"></td></tr>
-          </tbody>
-        </table>
-      </div>
+      <div id="tabela-premissas"></div>
 
-      <!-- CAMPOS DE PAPÉIS -->
       <h3 style="margin-top: 24px;">Configuração dos Papéis</h3>
       <div style="display: flex; gap: 32px; flex-wrap: wrap; margin-bottom: 16px;">
         <div>
@@ -69,6 +55,12 @@
     <!-- BOTÃO -->
     <section class="card">
       <button id="btn-simular">Rodar Simulação</button>
+    </section>
+
+    <!-- CENÁRIO -->
+    <section id="cenario-section" class="card">
+      <h2>Cenário Macroeconômico</h2>
+      <div id="form-markov"></div>
     </section>
 
     <!-- RESUMO -->
