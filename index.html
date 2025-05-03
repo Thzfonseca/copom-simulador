@@ -72,8 +72,8 @@
     <!-- GRÁFICOS -->
     <section id="graficos-section" class="card">
       <h2>Gráficos de Rentabilidade</h2>
-      <canvas id="grafico-acumulado"></canvas>
-      <canvas id="grafico-anualizado"></canvas>
+      <canvas id="grafico-acumulado" style="max-width: 100%; height: 400px;"></canvas>
+      <canvas id="grafico-anualizado" style="max-width: 100%; height: 400px;"></canvas>
     </section>
 
     <!-- NARRATIVA -->
@@ -96,6 +96,23 @@
   </main>
 
   <!-- SCRIPTS -->
+  <script>
+    function registrarErro(msg) {
+      console.error("[COPOM-ERRO]", msg);
+      window.__errosDebug = window.__errosDebug || [];
+      window.__errosDebug.push(msg);
+      const div = document.getElementById("relatorio-erros");
+      if (div) {
+        div.style.display = "block";
+        div.innerHTML += `<div>[!] ${msg}</div>`;
+        div.scrollTop = div.scrollHeight;
+      }
+    }
+
+    function logar(msg) {
+      console.log("[COPOM-LOG]", msg);
+    }
+  </script>
   <script src="script.js"></script>
   <script src="simulador.js"></script>
   <script src="grafico.js"></script>
