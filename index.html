@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html-docx-js/dist/html-docx.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>COPOM - Simulador IPCA+</title>
+
+  <!-- FONTES -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Roboto+Mono&display=swap" rel="stylesheet">
+
+  <!-- ESTILO -->
+  <link rel="stylesheet" href="style.css"/>
+
+  <!-- CHART.JS E ANOTAÇÃO -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.1.0/dist/chartjs-plugin-annotation.min.js"></script>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-title">COPOM</div>
+  </header>
+
+  <!-- CONTAINER PRINCIPAL -->
+  <main class="container">
+
+    <!-- TÍTULO DA PÁGINA -->
+    <section class="page-title">
+      <h1>Simulador Estratégico de IPCA+</h1>
+      <p class="subtext">Ferramenta de apoio à decisão para Advisors e investidores de alta renda.</p>
+    </section>
+
+    <!-- PREMISSAS ECONÔMICAS -->
+    <section id="premissas-section" class="card">
+      <h2>Premissas Econômicas</h2>
+      <div id="tabela-premissas"></div>
+    </section>
+
+    <!-- CENÁRIO MACRO -->
+    <section id="macro-variaveis-section" class="card">
+      <h2>Cenário Macroeconômico Atual</h2>
+      <div id="form-markov"></div>
+    </section>
+
+    <!-- BOTÃO DE SIMULAÇÃO -->
+    <section class="card">
+      <button id="btn-simular">Rodar Simulação</button>
+    </section>
+
+    <!-- RESUMO -->
+    <section id="resumo-section" class="card">
+      <h2>Resumo Estratégico</h2>
+      <div id="resumo-cards"></div>
+    </section>
+
+    <!-- GRÁFICOS -->
+    <section id="graficos-section" class="card">
+      <h2>Gráficos de Rentabilidade</h2>
+      <canvas id="grafico-acumulado"></canvas>
+      <canvas id="grafico-anualizado"></canvas>
+    </section>
+
+    <!-- STRESS DE CENÁRIO -->
+    <section id="stress-section" class="card">
+      <h2>Stress de Cenário</h2>
+      <div id="sliders-stress"></div>
+    </section>
+
+    <!-- NARRATIVA -->
+    <section id="narrativa-section" class="card">
+      <h2>Análise e Interpretação</h2>
+      <div id="output-narrativo"></div>
+    </section>
+
+    <!-- EXPORTAÇÃO -->
+    <section id="exportacao-section" class="card export-panel">
+      <button id="btn-exportar">Exportar Análise</button>
+    </section>
+
+    <!-- DEBUG LOG -->
+    <section id="debug-section" class="debug-log">
+      <button onclick="toggleDebug()">Ver Log Técnico</button>
+      <div id="relatorio-erros" style="display:none;"></div>
+    </section>
+
+  </main>
+
+  <!-- JS PRINCIPAIS -->
+  <script src="script.js"></script>
+  <script src="simulador.js"></script>
+  <script src="grafico.js"></script>
+</body>
+</html>
